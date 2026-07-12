@@ -7,6 +7,8 @@ import Sobre from './pages/Sobre';
 import Eventos from './pages/Eventos';
 import Paroquias from './pages/Paroquias';
 import Contato from './pages/Contato';
+import AdminDashboard from './pages/Admin/Dashboard';
+import AdminLogin from './pages/Admin/Login';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -22,6 +24,8 @@ const App: React.FC = () => {
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/paroquias" element={<Paroquias />} />
           <Route path="/contato" element={<Contato />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
         </Routes>
       </Layout>
     </Router>

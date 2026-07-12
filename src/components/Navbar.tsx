@@ -26,6 +26,9 @@ const Navbar: React.FC = () => {
               </div>
               <span className="hidden sm:inline">Comissão IVC Norte</span>
             </Link>
+            <Link to="/admin" className="text-[10px] bg-[#C41E3A]/5 text-[#C41E3A] px-2 py-1 rounded uppercase font-bold tracking-tighter hover:bg-[#C41E3A]/10 transition-colors">
+              Admin
+            </Link>
           </div>
 
           {/* Desktop Menu */}
@@ -79,6 +82,13 @@ const Navbar: React.FC = () => {
                 {link.name}
               </Link>
             ))}
+            <Link
+              to="/admin"
+              onClick={() => setIsOpen(false)}
+              className="block px-3 py-2 rounded-md text-base font-medium text-[#C41E3A] border-t border-[#C41E3A]/5 mt-2"
+            >
+              Painel Admin
+            </Link>
           </div>
         </div>
       )}
