@@ -35,9 +35,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0 flex items-center gap-4">
             <Link to="/" className="flex items-center gap-3 text-[#C41E3A] text-lg font-bold tracking-tight">
-              <div className="h-10 w-10 rounded-full bg-[#C41E3A]/10 flex items-center justify-center border-2 border-[#1B5E8C]">
-                <span className="text-[#C41E3A] font-bold text-sm">IVC</span>
-              </div>
+              <img src="/logo.png" alt="Comissão IVC Norte" className="h-10 w-10 rounded-full object-cover border-2 border-[#1B5E8C]" />
               <span className="hidden sm:inline">Comissão IVC Norte</span>
             </Link>
             <Link to="/admin" className="text-[10px] bg-[#C41E3A]/5 text-[#C41E3A] px-2 py-1 rounded uppercase font-bold tracking-tighter hover:bg-[#C41E3A]/10 transition-colors">
