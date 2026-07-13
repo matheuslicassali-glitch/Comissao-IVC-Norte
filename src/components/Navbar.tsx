@@ -88,10 +88,13 @@ const Navbar: React.FC = () => {
                 </div>
               )}
             </div>
+
+            <img src="/diocese-campos.png" alt="Diocese de Campos" className="h-10 w-10 rounded-full object-cover" />
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-3">
+            <img src="/diocese-campos.png" alt="Diocese de Campos" className="h-8 w-8 rounded-full object-cover" />
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-slate-700 hover:text-[#C41E3A] focus:outline-none"
