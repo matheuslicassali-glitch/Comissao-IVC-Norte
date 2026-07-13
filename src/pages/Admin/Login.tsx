@@ -127,9 +127,9 @@ const AdminLogin: React.FC = () => {
             <button
               type="button"
               onClick={handleCreateAccount}
-              className="w-full text-xs text-slate-400 hover:text-[#1E3A8A] transition-colors"
+              className="w-full text-xs text-slate-400 hover:text-[#C41E3A] transition-colors py-2"
             >
-
+              Criar Usuário Master
             </button>
           </div>
         </form>
