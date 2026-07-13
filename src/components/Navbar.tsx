@@ -3,14 +3,28 @@ import { Link, useLocation } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const location = useLocation();
 
   const navLinks = [
     { name: 'Início', path: '/' },
-    { name: 'Sobre', path: '/sobre' },
     { name: 'Eventos', path: '/eventos' },
+    { name: 'Orações', path: '/oracoes' },
+    { name: 'Agenda', path: '/agenda' },
     { name: 'Paróquias', path: '/paroquias' },
-    { name: 'Contato', path: '/contato' },
+    { name: 'Membros', path: '/membros' },
+  ];
+
+  const moreLinks = [
+    { name: 'Liturgia', path: '/liturgia' },
+    { name: 'Santo do Dia', path: '/santo' },
+    { name: 'Catecismo', path: '/catecismo' },
+    { name: 'Avisos', path: '/avisos' },
+    { name: 'Pastorais', path: '/pastorais' },
+    { name: 'Inscrições', path: '/inscricoes' },
+    { name: 'Instagram', path: '/instagram' },
+    { name: 'Redes Sociais', path: '/redes-sociais' },
+    { name: 'Prestação de Contas', path: '/prestacao-contas' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -32,7 +46,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden lg:flex items-center space-x-6">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -45,6 +59,37 @@ const Navbar: React.FC = () => {
                 {link.name}
               </Link>
             ))}
+
+            {/* Mais Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowMore(!showMore)}
+                className="flex items-center gap-1 text-slate-700 hover:text-[#C41E3A] transition-colors duration-200 text-sm font-medium"
+              >
+                Mais
+                <svg className={`w-4 h-4 transition-transform ${showMore ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {showMore && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                  {moreLinks.map((link) => (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={() => setShowMore(false)}
+                      className={`block px-4 py-2 text-sm font-medium transition-colors ${isActive(link.path)
+                        ? 'text-[#C41E3A] bg-[#C41E3A]/5'
+                        : 'text-slate-700 hover:text-[#C41E3A] hover:bg-[#C41E3A]/5'
+                        }`}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile menu button */}
@@ -67,7 +112,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-[#FFF8F0] border-b border-[#C41E3A]/10">
+        <div className="md:hidden bg-[#FFF8F0] border-b border-[#C41E3A]/10 max-h-[80vh] overflow-y-auto">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks.map((link) => (
               <Link
@@ -82,6 +127,24 @@ const Navbar: React.FC = () => {
                 {link.name}
               </Link>
             ))}
+
+            <div className="border-t border-[#C41E3A]/10 pt-2 mt-2">
+              <p className="px-3 py-1 text-xs font-bold text-[#C41E3A] uppercase tracking-wider">Mais</p>
+              {moreLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(link.path)
+                    ? 'text-[#C41E3A] bg-[#C41E3A]/5'
+                    : 'text-slate-700 hover:text-[#C41E3A] hover:bg-[#C41E3A]/5'
+                    }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+
             <Link
               to="/admin"
               onClick={() => setIsOpen(false)}
