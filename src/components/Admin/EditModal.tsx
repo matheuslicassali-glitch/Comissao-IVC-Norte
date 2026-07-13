@@ -358,7 +358,228 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, section, initial
                             </>
                         )}
 
-                        {section !== 'agenda' && section !== 'usuarios' && (
+                        {section === 'membros' && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                                    <input required className="w-full border p-2 rounded-lg" value={formData.nome || ''} onChange={e => setFormData({ ...formData, nome: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                                    <input required className="w-full border p-2 rounded-lg" value={formData.cargo || ''} onChange={e => setFormData({ ...formData, cargo: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                                    <textarea rows={3} className="w-full border p-2 rounded-lg" value={formData.descricao || ''} onChange={e => setFormData({ ...formData, descricao: e.target.value })} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                                        <input type="email" className="w-full border p-2 rounded-lg" value={formData.email || ''} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                                        <input className="w-full border p-2 rounded-lg" value={formData.telefone || ''} onChange={e => setFormData({ ...formData, telefone: e.target.value })} />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Ordem (para ordenação)</label>
+                                    <input type="number" className="w-full border p-2 rounded-lg" value={formData.ordem || 0} onChange={e => setFormData({ ...formData, ordem: parseInt(e.target.value) })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Foto</label>
+                                    <input type="file" accept="image/*" onChange={async (e) => {
+                                        if (!e.target.files || e.target.files.length === 0) return;
+                                        const file = e.target.files[0];
+                                        const fileExt = file.name.split('.').pop();
+                                        const fileName = `${Math.random()}.${fileExt}`;
+                                        setUploadingImage(true);
+                                        try {
+                                            const { error } = await supabase.storage.from('imagens').upload(`membros/${fileName}`, file);
+                                            if (error) throw error;
+                                            const { data } = supabase.storage.from('imagens').getPublicUrl(`membros/${fileName}`);
+                                            setFormData((prev: any) => ({ ...prev, foto_url: data.publicUrl }));
+                                        } catch (err: any) {
+                                            alert('Erro ao enviar foto: ' + err.message);
+                                        } finally {
+                                            setUploadingImage(false);
+                                        }
+                                    }} className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                    {uploadingImage && <p className="text-xs text-blue-600 mt-1">Enviando foto...</p>}
+                                    {formData.foto_url && <img src={formData.foto_url} alt="Preview" className="mt-2 h-20 w-20 object-cover rounded-full bg-slate-100" />}
+                                </div>
+                            </>
+                        )}
+
+                        {section === 'avisos' && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                                    <input required className="w-full border p-2 rounded-lg" value={formData.titulo || ''} onChange={e => setFormData({ ...formData, titulo: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                    <select className="w-full border p-2 rounded-lg" value={formData.tipo || 'geral'} onChange={e => setFormData({ ...formData, tipo: e.target.value })}>
+                                        <option value="geral">Geral</option>
+                                        <option value="importante">Importante</option>
+                                        <option value="urgente">Urgente</option>
+                                        <option value="evento">Evento</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Conteúdo</label>
+                                    <textarea rows={4} required className="w-full border p-2 rounded-lg" value={formData.conteudo || ''} onChange={e => setFormData({ ...formData, conteudo: e.target.value })} />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="publicado" checked={formData.publicado !== false} onChange={e => setFormData({ ...formData, publicado: e.target.checked })} className="rounded" />
+                                    <label htmlFor="publicado" className="text-sm text-gray-700">Publicado</label>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Imagem (opcional)</label>
+                                    <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                    {uploadingImage && <p className="text-xs text-blue-600 mt-1">Enviando imagem...</p>}
+                                    {formData.imagem_url && <img src={formData.imagem_url} alt="Preview" className="mt-2 h-20 w-fit object-cover rounded bg-slate-100" />}
+                                </div>
+                            </>
+                        )}
+
+                        {section === 'liturgia' && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                                    <input type="date" required className="w-full border p-2 rounded-lg" value={formData.data || ''} onChange={e => setFormData({ ...formData, data: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Primeira Leitura</label>
+                                    <textarea rows={2} className="w-full border p-2 rounded-lg" value={formData.primeira_leitura || ''} onChange={e => setFormData({ ...formData, primeira_leitura: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Salmo</label>
+                                    <textarea rows={2} className="w-full border p-2 rounded-lg" value={formData.salmo || ''} onChange={e => setFormData({ ...formData, salmo: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Segunda Leitura</label>
+                                    <textarea rows={2} className="w-full border p-2 rounded-lg" value={formData.segunda_leitura || ''} onChange={e => setFormData({ ...formData, segunda_leitura: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Evangelho</label>
+                                    <textarea rows={3} className="w-full border p-2 rounded-lg" value={formData.evangelho || ''} onChange={e => setFormData({ ...formData, evangelho: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Oração</label>
+                                    <textarea rows={3} className="w-full border p-2 rounded-lg" value={formData.oracao || ''} onChange={e => setFormData({ ...formData, oracao: e.target.value })} />
+                                </div>
+                            </>
+                        )}
+
+                        {section === 'catecismo' && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                                    <input required className="w-full border p-2 rounded-lg" value={formData.titulo || ''} onChange={e => setFormData({ ...formData, titulo: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                                    <input className="w-full border p-2 rounded-lg" value={formData.categoria || ''} onChange={e => setFormData({ ...formData, categoria: e.target.value })} placeholder="ex: sacramentos, mandamentos, orações" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Conteúdo</label>
+                                    <textarea rows={6} required className="w-full border p-2 rounded-lg" value={formData.conteudo || ''} onChange={e => setFormData({ ...formData, conteudo: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Ordem (para ordenação)</label>
+                                    <input type="number" className="w-full border p-2 rounded-lg" value={formData.ordem || 0} onChange={e => setFormData({ ...formData, ordem: parseInt(e.target.value) })} />
+                                </div>
+                            </>
+                        )}
+
+                        {section === 'prestacao' && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                                    <input required className="w-full border p-2 rounded-lg" value={formData.titulo || ''} onChange={e => setFormData({ ...formData, titulo: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                                    <textarea rows={2} className="w-full border p-2 rounded-lg" value={formData.descricao || ''} onChange={e => setFormData({ ...formData, descricao: e.target.value })} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
+                                        <input type="number" step="0.01" required className="w-full border p-2 rounded-lg" value={formData.valor || ''} onChange={e => setFormData({ ...formData, valor: parseFloat(e.target.value) })} />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                        <select className="w-full border p-2 rounded-lg" value={formData.tipo || 'entrada'} onChange={e => setFormData({ ...formData, tipo: e.target.value })}>
+                                            <option value="entrada">Entrada</option>
+                                            <option value="saida">Saída</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                                    <input type="date" required className="w-full border p-2 rounded-lg" value={formData.data || ''} onChange={e => setFormData({ ...formData, data: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">URL Comprovante (opcional)</label>
+                                    <input className="w-full border p-2 rounded-lg" value={formData.comprovante_url || ''} onChange={e => setFormData({ ...formData, comprovante_url: e.target.value })} />
+                                </div>
+                            </>
+                        )}
+
+                        {section === 'inscricoes' && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Evento</label>
+                                    <input required className="w-full border p-2 rounded-lg" value={formData.evento_nome || ''} onChange={e => setFormData({ ...formData, evento_nome: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Link de Inscrição</label>
+                                    <input required className="w-full border p-2 rounded-lg" value={formData.link_inscricao || ''} onChange={e => setFormData({ ...formData, link_inscricao: e.target.value })} placeholder="https://..." />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                                    <textarea rows={2} className="w-full border p-2 rounded-lg" value={formData.descricao || ''} onChange={e => setFormData({ ...formData, descricao: e.target.value })} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Vagas</label>
+                                        <input type="number" className="w-full border p-2 rounded-lg" value={formData.vagas || ''} onChange={e => setFormData({ ...formData, vagas: parseInt(e.target.value) })} />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Data Limite</label>
+                                        <input type="date" className="w-full border p-2 rounded-lg" value={formData.data_limite || ''} onChange={e => setFormData({ ...formData, data_limite: e.target.value })} />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="ativo" checked={formData.ativo !== false} onChange={e => setFormData({ ...formData, ativo: e.target.checked })} className="rounded" />
+                                    <label htmlFor="ativo" className="text-sm text-gray-700">Ativo</label>
+                                </div>
+                            </>
+                        )}
+
+                        {section === 'redes' && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                                    <input required className="w-full border p-2 rounded-lg" value={formData.nome || ''} onChange={e => setFormData({ ...formData, nome: e.target.value })} placeholder="Instagram, Facebook, YouTube..." />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                                    <input required className="w-full border p-2 rounded-lg" value={formData.url || ''} onChange={e => setFormData({ ...formData, url: e.target.value })} placeholder="https://..." />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Ícone</label>
+                                    <input className="w-full border p-2 rounded-lg" value={formData.icone || ''} onChange={e => setFormData({ ...formData, icone: e.target.value })} placeholder="instagram, facebook, youtube, whatsapp..." />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="ativo-rede" checked={formData.ativo !== false} onChange={e => setFormData({ ...formData, ativo: e.target.checked })} className="rounded" />
+                                    <label htmlFor="ativo-rede" className="text-sm text-gray-700">Ativo</label>
+                                </div>
+                            </>
+                        )}
+
+                        {['home', 'eventos', 'instagram', 'oracoes', 'capelas', 'pastorais', 'loja'].includes(section) && (
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Imagem</label>
                                 <input type="file" onChange={handleImageUpload} className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />

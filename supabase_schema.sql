@@ -1,9 +1,13 @@
 -- ============================================
 -- SCRIPT SQL COMPLETO - COMISSÃO IVC NORTE
 -- Execute no SQL Editor do Supabase
+-- (Idempotente - pode rodar várias vezes)
 -- ============================================
 
--- 1. TABELA: noticias (Slides da página inicial)
+-- ============================================
+-- PARTE 1: CRIAR TABELAS
+-- ============================================
+
 CREATE TABLE IF NOT EXISTS noticias (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titulo TEXT NOT NULL,
@@ -12,11 +16,7 @@ CREATE TABLE IF NOT EXISTS noticias (
     link TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE noticias ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON noticias FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON noticias FOR ALL USING (auth.role() = 'authenticated');
 
--- 2. TABELA: eventos
 CREATE TABLE IF NOT EXISTS eventos (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome TEXT NOT NULL,
@@ -26,11 +26,7 @@ CREATE TABLE IF NOT EXISTS eventos (
     imagem_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE eventos ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON eventos FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON eventos FOR ALL USING (auth.role() = 'authenticated');
 
--- 3. TABELA: paroquias
 CREATE TABLE IF NOT EXISTS paroquias (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome TEXT NOT NULL,
@@ -43,11 +39,7 @@ CREATE TABLE IF NOT EXISTS paroquias (
     forania TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE paroquias ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON paroquias FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON paroquias FOR ALL USING (auth.role() = 'authenticated');
 
--- 4. TABELA: pastorais
 CREATE TABLE IF NOT EXISTS pastorais (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome TEXT NOT NULL,
@@ -57,11 +49,7 @@ CREATE TABLE IF NOT EXISTS pastorais (
     imagem_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE pastorais ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON pastorais FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON pastorais FOR ALL USING (auth.role() = 'authenticated');
 
--- 5. TABELA: membros (Membros da Comissão)
 CREATE TABLE IF NOT EXISTS membros (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome TEXT NOT NULL,
@@ -73,11 +61,7 @@ CREATE TABLE IF NOT EXISTS membros (
     ordem INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE membros ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON membros FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON membros FOR ALL USING (auth.role() = 'authenticated');
 
--- 6. TABELA: avisos
 CREATE TABLE IF NOT EXISTS avisos (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titulo TEXT NOT NULL,
@@ -87,11 +71,7 @@ CREATE TABLE IF NOT EXISTS avisos (
     publicado BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE avisos ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON avisos FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON avisos FOR ALL USING (auth.role() = 'authenticated');
 
--- 7. TABELA: liturgia (Liturgia diária)
 CREATE TABLE IF NOT EXISTS liturgia (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     data DATE NOT NULL UNIQUE,
@@ -102,11 +82,7 @@ CREATE TABLE IF NOT EXISTS liturgia (
     oracao TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE liturgia ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON liturgia FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON liturgia FOR ALL USING (auth.role() = 'authenticated');
 
--- 8. TABELA: catecismo
 CREATE TABLE IF NOT EXISTS catecismo (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titulo TEXT NOT NULL,
@@ -115,11 +91,7 @@ CREATE TABLE IF NOT EXISTS catecismo (
     ordem INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE catecismo ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON catecismo FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON catecismo FOR ALL USING (auth.role() = 'authenticated');
 
--- 9. TABELA: agenda (Agenda da comissão)
 CREATE TABLE IF NOT EXISTS agenda (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titulo TEXT NOT NULL,
@@ -130,11 +102,7 @@ CREATE TABLE IF NOT EXISTS agenda (
     local TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE agenda ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON agenda FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON agenda FOR ALL USING (auth.role() = 'authenticated');
 
--- 10. TABELA: prestacao_contas (Prestação de contas)
 CREATE TABLE IF NOT EXISTS prestacao_contas (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titulo TEXT NOT NULL,
@@ -145,11 +113,7 @@ CREATE TABLE IF NOT EXISTS prestacao_contas (
     comprovante_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE prestacao_contas ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON prestacao_contas FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON prestacao_contas FOR ALL USING (auth.role() = 'authenticated');
 
--- 11. TABELA: inscricoes (Inscrições)
 CREATE TABLE IF NOT EXISTS inscricoes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     evento_nome TEXT NOT NULL,
@@ -160,11 +124,7 @@ CREATE TABLE IF NOT EXISTS inscricoes (
     ativo BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE inscricoes ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON inscricoes FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON inscricoes FOR ALL USING (auth.role() = 'authenticated');
 
--- 12. TABELA: redes_sociais (Links das redes sociais)
 CREATE TABLE IF NOT EXISTS redes_sociais (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome TEXT NOT NULL,
@@ -173,11 +133,7 @@ CREATE TABLE IF NOT EXISTS redes_sociais (
     ativo BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE redes_sociais ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON redes_sociais FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON redes_sociais FOR ALL USING (auth.role() = 'authenticated');
 
--- 13. TABELA: oracoes (Orações)
 CREATE TABLE IF NOT EXISTS oracoes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titulo TEXT NOT NULL,
@@ -186,11 +142,7 @@ CREATE TABLE IF NOT EXISTS oracoes (
     imagem_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-ALTER TABLE oracoes ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON oracoes FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON oracoes FOR ALL USING (auth.role() = 'authenticated');
 
--- 14. TABELA: app_config
 CREATE TABLE IF NOT EXISTS app_config (
     id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
     telefone_secretaria TEXT,
@@ -202,17 +154,187 @@ CREATE TABLE IF NOT EXISTS app_config (
     whatsapp_grupo TEXT,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- ============================================
+-- PARTE 2: HABILITAR RLS E CRIAR POLÍTICAS
+-- ============================================
+
+ALTER TABLE noticias ENABLE ROW LEVEL SECURITY;
+ALTER TABLE eventos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE paroquias ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pastorais ENABLE ROW LEVEL SECURITY;
+ALTER TABLE membros ENABLE ROW LEVEL SECURITY;
+ALTER TABLE avisos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE liturgia ENABLE ROW LEVEL SECURITY;
+ALTER TABLE catecismo ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agenda ENABLE ROW LEVEL SECURITY;
+ALTER TABLE prestacao_contas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE inscricoes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE redes_sociais ENABLE ROW LEVEL SECURITY;
+ALTER TABLE oracoes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_config ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Permitir leitura pública" ON app_config FOR SELECT USING (true);
-CREATE POLICY "Permitir escrita autenticados" ON app_config FOR ALL USING (auth.role() = 'authenticated');
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'noticias') THEN
+    CREATE POLICY "Permitir leitura pública" ON noticias FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'noticias') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON noticias FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'eventos') THEN
+    CREATE POLICY "Permitir leitura pública" ON eventos FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'eventos') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON eventos FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'paroquias') THEN
+    CREATE POLICY "Permitir leitura pública" ON paroquias FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'paroquias') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON paroquias FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'pastorais') THEN
+    CREATE POLICY "Permitir leitura pública" ON pastorais FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'pastorais') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON pastorais FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'membros') THEN
+    CREATE POLICY "Permitir leitura pública" ON membros FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'membros') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON membros FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'avisos') THEN
+    CREATE POLICY "Permitir leitura pública" ON avisos FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'avisos') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON avisos FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'liturgia') THEN
+    CREATE POLICY "Permitir leitura pública" ON liturgia FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'liturgia') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON liturgia FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'catecismo') THEN
+    CREATE POLICY "Permitir leitura pública" ON catecismo FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'catecismo') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON catecismo FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'agenda') THEN
+    CREATE POLICY "Permitir leitura pública" ON agenda FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'agenda') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON agenda FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'prestacao_contas') THEN
+    CREATE POLICY "Permitir leitura pública" ON prestacao_contas FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'prestacao_contas') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON prestacao_contas FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'inscricoes') THEN
+    CREATE POLICY "Permitir leitura pública" ON inscricoes FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'inscricoes') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON inscricoes FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'redes_sociais') THEN
+    CREATE POLICY "Permitir leitura pública" ON redes_sociais FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'redes_sociais') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON redes_sociais FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'oracoes') THEN
+    CREATE POLICY "Permitir leitura pública" ON oracoes FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'oracoes') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON oracoes FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir leitura pública' AND tablename = 'app_config') THEN
+    CREATE POLICY "Permitir leitura pública" ON app_config FOR SELECT USING (true);
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir escrita autenticados' AND tablename = 'app_config') THEN
+    CREATE POLICY "Permitir escrita autenticados" ON app_config FOR ALL USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
+
+-- ============================================
+-- PARTE 3: DADOS INICIAIS
+-- ============================================
 
 INSERT INTO app_config (id, telefone_secretaria, email_secretaria, endereco_secretaria)
 VALUES (1, '(00) 0000-0000', 'contato@comissaoivcnorte.com.br', 'Diocese de Campos - RJ')
 ON CONFLICT (id) DO NOTHING;
-
--- ============================================
--- DADOS DE EXEMPLO
--- ============================================
 
 INSERT INTO noticias (titulo, resumo, imagem_url) VALUES
 ('Bem-vindos à Comissão IVC Norte', 'Conheça nosso trabalho na Diocese de Campos', 'https://picsum.photos/seed/welcome/600/400'),
