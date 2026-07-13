@@ -81,3 +81,69 @@ export interface Produto {
   preco: number;
   imagem_url: string;
 }
+
+export interface Membro {
+  id: string;
+  nome: string;
+  cargo: string;
+  descricao: string;
+  foto_url: string;
+  email: string;
+  telefone: string;
+  ordem: number;
+}
+
+export interface Aviso {
+  id: string;
+  titulo: string;
+  conteudo: string;
+  tipo: 'urgente' | 'importante' | 'geral' | 'evento';
+  imagem_url: string;
+  publicado: boolean;
+}
+
+export interface Liturgia {
+  id: string;
+  data: string;
+  primeira_leitura: string;
+  salmo: string;
+  segunda_leitura: string;
+  evangelho: string;
+  oracao: string;
+}
+
+export interface Catecismo {
+  id: string;
+  titulo: string;
+  conteudo: string;
+  categoria: string;
+  ordem: number;
+}
+
+export interface PrestacaoContas {
+  id: string;
+  titulo: string;
+  descricao: string;
+  valor: number;
+  tipo: 'entrada' | 'saida';
+  data: string;
+  comprovante_url: string;
+}
+
+export interface Inscricao {
+  id: string;
+  evento_nome: string;
+  link_inscricao: string;
+  data_limite: string;
+  vagas: number;
+  descricao: string;
+  ativo: boolean;
+}
+
+export interface RedeSocial {
+  id: string;
+  nome: string;
+  url: string;
+  icone: string;
+  ativo: boolean;
+}

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Evento, Noticia, AgendaItem, InstagramPost, AppConfig, Oracao, Capela, Pastoral, Produto } from '../../types';
+import { Evento, Noticia, AgendaItem, InstagramPost, AppConfig, Oracao, Capela, Pastoral, Produto, Membro, Aviso, Liturgia, Catecismo, PrestacaoContas, Inscricao, RedeSocial } from '../../types';
 import { supabase } from '../../services/supabase';
 import { createClient } from '@supabase/supabase-js';
 import EditModal from '../../components/Admin/EditModal';
 
-type Section = 'home' | 'eventos' | 'agenda' | 'dizimo' | 'instagram' | 'oracoes' | 'capelas' | 'pastorais' | 'usuarios' | 'loja';
+type Section = 'home' | 'eventos' | 'agenda' | 'dizimo' | 'instagram' | 'oracoes' | 'capelas' | 'pastorais' | 'usuarios' | 'loja' | 'membros' | 'avisos' | 'liturgia' | 'catecismo' | 'prestacao' | 'inscricoes' | 'redes';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -25,7 +25,14 @@ const AdminDashboard: React.FC = () => {
     capelas: 'Capelas',
     pastorais: 'Pastorais',
     loja: 'Loja Virtual',
-    usuarios: 'Administradores do Sistema'
+    usuarios: 'Administradores do Sistema',
+    membros: 'Membros da Comissão',
+    avisos: 'Avisos e Recados',
+    liturgia: 'Liturgia Diária',
+    catecismo: 'Estudo do Catecismo',
+    prestacao: 'Prestação de Contas',
+    inscricoes: 'Inscrições',
+    redes: 'Redes Sociais'
   };
 
   // States specific for "Notícias" (Home Slides)
@@ -41,6 +48,13 @@ const AdminDashboard: React.FC = () => {
   const [capelas, setCapelas] = useState<Capela[]>([]);
   const [pastorais, setPastorais] = useState<Pastoral[]>([]);
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [membros, setMembros] = useState<Membro[]>([]);
+  const [avisos, setAvisos] = useState<Aviso[]>([]);
+  const [liturgias, setLiturgias] = useState<Liturgia[]>([]);
+  const [catecismos, setCatecismos] = useState<Catecismo[]>([]);
+  const [prestacoes, setPrestacoes] = useState<PrestacaoContas[]>([]);
+  const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
+  const [redes, setRedes] = useState<RedeSocial[]>([]);
   // States specific for "Dízimo" (AppConfig)
   const [appConfig, setAppConfig] = useState<Partial<AppConfig>>({});
 
@@ -155,6 +169,55 @@ const AdminDashboard: React.FC = () => {
         setProdutos(pData || []);
         const { data: cData } = await supabase.from('app_config').select('*').eq('id', 1).single();
         setAppConfig(cData || {});
+      } else if (section === 'membros') {
+        const { data, error } = await supabase.from('membros').select('*').order('ordem', { ascending: true });
+        if (error) {
+          setErrorMSG(error.message);
+        } else {
+          setMembros(data || []);
+        }
+      } else if (section === 'avisos') {
+        const { data, error } = await supabase.from('avisos').select('*').order('created_at', { ascending: false });
+        if (error) {
+          setErrorMSG(error.message);
+        } else {
+          setAvisos(data || []);
+        }
+      } else if (section === 'liturgia') {
+        const { data, error } = await supabase.from('liturgia').select('*').order('data', { ascending: false });
+        if (error) {
+          setErrorMSG(error.message);
+        } else {
+          setLiturgias(data || []);
+        }
+      } else if (section === 'catecismo') {
+        const { data, error } = await supabase.from('catecismo').select('*').order('ordem', { ascending: true });
+        if (error) {
+          setErrorMSG(error.message);
+        } else {
+          setCatecismos(data || []);
+        }
+      } else if (section === 'prestacao') {
+        const { data, error } = await supabase.from('prestacao_contas').select('*').order('data', { ascending: false });
+        if (error) {
+          setErrorMSG(error.message);
+        } else {
+          setPrestacoes(data || []);
+        }
+      } else if (section === 'inscricoes') {
+        const { data, error } = await supabase.from('inscricoes').select('*').order('created_at', { ascending: false });
+        if (error) {
+          setErrorMSG(error.message);
+        } else {
+          setInscricoes(data || []);
+        }
+      } else if (section === 'redes') {
+        const { data, error } = await supabase.from('redes_sociais').select('*');
+        if (error) {
+          setErrorMSG(error.message);
+        } else {
+          setRedes(data || []);
+        }
       } else if (section === 'dizimo') {
         const { data, error } = await supabase.from('app_config').select('*').eq('id', 1).single();
         if (error) {
@@ -354,6 +417,132 @@ const AdminDashboard: React.FC = () => {
     } catch (err: any) { alert(err.message); }
   };
 
+  // --- Handlers for Membros ---
+  const handleEditMembro = (item: Membro) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
+  const handleNewMembro = () => {
+    setEditingItem({ nome: '', cargo: '', descricao: '', foto_url: '', email: '', telefone: '', ordem: 0 });
+    setIsModalOpen(true);
+  };
+  const handleDeleteMembro = async (id: string) => {
+    if (!window.confirm('Tem certeza?')) return;
+    try {
+      const { error } = await supabase.from('membros').delete().match({ id });
+      if (error) throw error;
+      setMembros(membros.filter(m => m.id !== id));
+    } catch (err: any) { alert(err.message); }
+  };
+
+  // --- Handlers for Avisos ---
+  const handleEditAviso = (item: Aviso) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
+  const handleNewAviso = () => {
+    setEditingItem({ titulo: '', conteudo: '', tipo: 'geral', imagem_url: '', publicado: true });
+    setIsModalOpen(true);
+  };
+  const handleDeleteAviso = async (id: string) => {
+    if (!window.confirm('Tem certeza?')) return;
+    try {
+      const { error } = await supabase.from('avisos').delete().match({ id });
+      if (error) throw error;
+      setAvisos(avisos.filter(a => a.id !== id));
+    } catch (err: any) { alert(err.message); }
+  };
+
+  // --- Handlers for Liturgia ---
+  const handleEditLiturgia = (item: Liturgia) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
+  const handleNewLiturgia = () => {
+    setEditingItem({ data: '', primeira_leitura: '', salmo: '', segunda_leitura: '', evangelho: '', oracao: '' });
+    setIsModalOpen(true);
+  };
+  const handleDeleteLiturgia = async (id: string) => {
+    if (!window.confirm('Tem certeza?')) return;
+    try {
+      const { error } = await supabase.from('liturgia').delete().match({ id });
+      if (error) throw error;
+      setLiturgias(liturgias.filter(l => l.id !== id));
+    } catch (err: any) { alert(err.message); }
+  };
+
+  // --- Handlers for Catecismo ---
+  const handleEditCatecismo = (item: Catecismo) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
+  const handleNewCatecismo = () => {
+    setEditingItem({ titulo: '', conteudo: '', categoria: '', ordem: 0 });
+    setIsModalOpen(true);
+  };
+  const handleDeleteCatecismo = async (id: string) => {
+    if (!window.confirm('Tem certeza?')) return;
+    try {
+      const { error } = await supabase.from('catecismo').delete().match({ id });
+      if (error) throw error;
+      setCatecismos(catecismos.filter(c => c.id !== id));
+    } catch (err: any) { alert(err.message); }
+  };
+
+  // --- Handlers for Prestacao de Contas ---
+  const handleEditPrestacao = (item: PrestacaoContas) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
+  const handleNewPrestacao = () => {
+    setEditingItem({ titulo: '', descricao: '', valor: 0, tipo: 'entrada', data: '', comprovante_url: '' });
+    setIsModalOpen(true);
+  };
+  const handleDeletePrestacao = async (id: string) => {
+    if (!window.confirm('Tem certeza?')) return;
+    try {
+      const { error } = await supabase.from('prestacao_contas').delete().match({ id });
+      if (error) throw error;
+      setPrestacoes(prestacoes.filter(p => p.id !== id));
+    } catch (err: any) { alert(err.message); }
+  };
+
+  // --- Handlers for Inscricoes ---
+  const handleEditInscricao = (item: Inscricao) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
+  const handleNewInscricao = () => {
+    setEditingItem({ evento_nome: '', link_inscricao: '', data_limite: '', vagas: 0, descricao: '', ativo: true });
+    setIsModalOpen(true);
+  };
+  const handleDeleteInscricao = async (id: string) => {
+    if (!window.confirm('Tem certeza?')) return;
+    try {
+      const { error } = await supabase.from('inscricoes').delete().match({ id });
+      if (error) throw error;
+      setInscricoes(inscricoes.filter(i => i.id !== id));
+    } catch (err: any) { alert(err.message); }
+  };
+
+  // --- Handlers for Redes Sociais ---
+  const handleEditRede = (item: RedeSocial) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
+  const handleNewRede = () => {
+    setEditingItem({ nome: '', url: '', icone: '', ativo: true });
+    setIsModalOpen(true);
+  };
+  const handleDeleteRede = async (id: string) => {
+    if (!window.confirm('Tem certeza?')) return;
+    try {
+      const { error } = await supabase.from('redes_sociais').delete().match({ id });
+      if (error) throw error;
+      setRedes(redes.filter(r => r.id !== id));
+    } catch (err: any) { alert(err.message); }
+  };
+
   // --- Handler for Create User (Master Only) ---
   const handleNewUser = () => {
     setEditingItem({ email: '', password: '' });
@@ -433,6 +622,13 @@ const AdminDashboard: React.FC = () => {
     else if (activeSection === 'capelas') table = 'capelas';
     else if (activeSection === 'pastorais') table = 'pastorais';
     else if (activeSection === 'loja') table = 'produtos';
+    else if (activeSection === 'membros') table = 'membros';
+    else if (activeSection === 'avisos') table = 'avisos';
+    else if (activeSection === 'liturgia') table = 'liturgia';
+    else if (activeSection === 'catecismo') table = 'catecismo';
+    else if (activeSection === 'prestacao') table = 'prestacao_contas';
+    else if (activeSection === 'inscricoes') table = 'inscricoes';
+    else if (activeSection === 'redes') table = 'redes_sociais';
 
     if (activeSection === 'usuarios') {
       await handleCreateUser(itemToSave);
@@ -479,15 +675,20 @@ const AdminDashboard: React.FC = () => {
             <SidebarLink id="home" icon="🏠" label="Início (Slides)" />
             <SidebarLink id="eventos" icon="📅" label="Eventos" />
             <SidebarLink id="agenda" icon="🕒" label="Agenda" />
-            <SidebarLink id="dizimo" icon="🙏" label="Dízimo" />
-            <SidebarLink id="instagram" icon="📸" label="Instagram" />
-            <SidebarLink id="oracoes" icon="⛪" label="Orações" />
-            <SidebarLink id="capelas" icon="💒" label="Capelas" />
+            <SidebarLink id="avisos" icon="📢" label="Avisos" />
+            <SidebarLink id="membros" icon="👥" label="Membros" />
+            <SidebarLink id="liturgia" icon="📖" label="Liturgia" />
+            <SidebarLink id="catecismo" icon="📚" label="Catecismo" />
+            <SidebarLink id="oracoes" icon="🙏" label="Orações" />
+            <SidebarLink id="paroquias" icon="⛪" label="Paróquias" />
             <SidebarLink id="pastorais" icon="🤝" label="Pastorais" />
+            <SidebarLink id="redes" icon="📱" label="Redes Sociais" />
+            <SidebarLink id="inscricoes" icon="✍️" label="Inscrições" />
+            <SidebarLink id="prestacao" icon="💰" label="Prestação de Contas" />
+            <SidebarLink id="instagram" icon="📸" label="Instagram" />
+            <SidebarLink id="dizimo" icon="💵" label="Dízimo" />
             <SidebarLink id="loja" icon="🛍️" label="Loja" />
-            {currentUserEmail === 'matheuslicassali@gmail.com' && (
-              <SidebarLink id="usuarios" icon="👥" label="Usuários (Master)" />
-            )}
+            <SidebarLink id="usuarios" icon="👤" label="Usuários (Master)" />
           </div>
         </div>
         <button
@@ -551,6 +752,51 @@ const AdminDashboard: React.FC = () => {
             {activeSection === 'capelas' && (
               <button onClick={handleNewCapela} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
                 + Adicionar Capela
+              </button>
+            )}
+            {activeSection === 'pastorais' && (
+              <button onClick={handleNewPastoral} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
+                + Adicionar Pastoral
+              </button>
+            )}
+            {activeSection === 'loja' && (
+              <button onClick={handleNewProduto} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
+                + Adicionar Produto
+              </button>
+            )}
+            {activeSection === 'membros' && (
+              <button onClick={handleNewMembro} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
+                + Adicionar Membro
+              </button>
+            )}
+            {activeSection === 'avisos' && (
+              <button onClick={handleNewAviso} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
+                + Adicionar Aviso
+              </button>
+            )}
+            {activeSection === 'liturgia' && (
+              <button onClick={handleNewLiturgia} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
+                + Adicionar Liturgia
+              </button>
+            )}
+            {activeSection === 'catecismo' && (
+              <button onClick={handleNewCatecismo} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
+                + Adicionar Catecismo
+              </button>
+            )}
+            {activeSection === 'prestacao' && (
+              <button onClick={handleNewPrestacao} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
+                + Adicionar Lançamento
+              </button>
+            )}
+            {activeSection === 'inscricoes' && (
+              <button onClick={handleNewInscricao} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
+                + Adicionar Inscrição
+              </button>
+            )}
+            {activeSection === 'redes' && (
+              <button onClick={handleNewRede} className="bg-[#1E3A8A] text-white px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-md">
+                + Adicionar Rede Social
               </button>
             )}
             {activeSection === 'pastorais' && (
@@ -1022,6 +1268,285 @@ const AdminDashboard: React.FC = () => {
                   Como usuário Master, você pode cadastrar novos administradores para o sistema.
                   <br />Eles terão acesso total a este painel administrativo.
                 </p>
+              </div>
+            )}
+
+            {activeSection === 'membros' && (
+              <div className="space-y-4">
+                {loading ? <p>Carregando...</p> : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-50">
+                          <th className="pb-3 px-4">Foto</th>
+                          <th className="pb-3 px-4">Nome</th>
+                          <th className="pb-3 px-4">Cargo</th>
+                          <th className="pb-3 px-4">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {membros.length === 0 && (
+                          <tr><td colSpan={4} className="text-center py-4 text-gray-400">Nenhum membro cadastrado</td></tr>
+                        )}
+                        {membros.map((m) => (
+                          <tr key={m.id} className="group hover:bg-slate-50 transition-colors">
+                            <td className="py-4 px-4 w-20">
+                              {m.foto_url && <img src={m.foto_url} alt="foto" className="w-10 h-10 object-cover rounded-full" />}
+                            </td>
+                            <td className="py-4 px-4 font-semibold text-slate-800">{m.nome}</td>
+                            <td className="py-4 px-4 text-sm text-slate-600">{m.cargo}</td>
+                            <td className="py-4 px-4 w-32">
+                              <div className="flex gap-2">
+                                <button onClick={() => handleEditMembro(m)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
+                                <button onClick={() => handleDeleteMembro(m.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'avisos' && (
+              <div className="space-y-4">
+                {loading ? <p>Carregando...</p> : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-50">
+                          <th className="pb-3 px-4">Título</th>
+                          <th className="pb-3 px-4">Tipo</th>
+                          <th className="pb-3 px-4">Conteúdo</th>
+                          <th className="pb-3 px-4">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {avisos.length === 0 && (
+                          <tr><td colSpan={4} className="text-center py-4 text-gray-400">Nenhum aviso cadastrado</td></tr>
+                        )}
+                        {avisos.map((a) => (
+                          <tr key={a.id} className="group hover:bg-slate-50 transition-colors">
+                            <td className="py-4 px-4 font-semibold text-slate-800">{a.titulo}</td>
+                            <td className="py-4 px-4">
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                a.tipo === 'urgente' ? 'bg-red-100 text-red-700' :
+                                a.tipo === 'importante' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-blue-100 text-blue-700'
+                              }`}>{a.tipo}</span>
+                            </td>
+                            <td className="py-4 px-4 text-sm text-slate-600 max-w-xs truncate">{a.conteudo}</td>
+                            <td className="py-4 px-4 w-32">
+                              <div className="flex gap-2">
+                                <button onClick={() => handleEditAviso(a)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
+                                <button onClick={() => handleDeleteAviso(a.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'liturgia' && (
+              <div className="space-y-4">
+                {loading ? <p>Carregando...</p> : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-50">
+                          <th className="pb-3 px-4">Data</th>
+                          <th className="pb-3 px-4">Evangelho</th>
+                          <th className="pb-3 px-4">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {liturgias.length === 0 && (
+                          <tr><td colSpan={3} className="text-center py-4 text-gray-400">Nenhuma liturgia cadastrada</td></tr>
+                        )}
+                        {liturgias.map((l) => (
+                          <tr key={l.id} className="group hover:bg-slate-50 transition-colors">
+                            <td className="py-4 px-4 font-semibold text-slate-800">{new Date(l.data).toLocaleDateString('pt-BR')}</td>
+                            <td className="py-4 px-4 text-sm text-slate-600 max-w-xs truncate">{l.evangelho}</td>
+                            <td className="py-4 px-4 w-32">
+                              <div className="flex gap-2">
+                                <button onClick={() => handleEditLiturgia(l)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
+                                <button onClick={() => handleDeleteLiturgia(l.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'catecismo' && (
+              <div className="space-y-4">
+                {loading ? <p>Carregando...</p> : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-50">
+                          <th className="pb-3 px-4">Título</th>
+                          <th className="pb-3 px-4">Categoria</th>
+                          <th className="pb-3 px-4">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {catecismos.length === 0 && (
+                          <tr><td colSpan={3} className="text-center py-4 text-gray-400">Nenhum catecismo cadastrado</td></tr>
+                        )}
+                        {catecismos.map((c) => (
+                          <tr key={c.id} className="group hover:bg-slate-50 transition-colors">
+                            <td className="py-4 px-4 font-semibold text-slate-800">{c.titulo}</td>
+                            <td className="py-4 px-4 text-sm text-slate-600">{c.categoria}</td>
+                            <td className="py-4 px-4 w-32">
+                              <div className="flex gap-2">
+                                <button onClick={() => handleEditCatecismo(c)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
+                                <button onClick={() => handleDeleteCatecismo(c.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'prestacao' && (
+              <div className="space-y-4">
+                {loading ? <p>Carregando...</p> : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-50">
+                          <th className="pb-3 px-4">Data</th>
+                          <th className="pb-3 px-4">Título</th>
+                          <th className="pb-3 px-4">Tipo</th>
+                          <th className="pb-3 px-4">Valor</th>
+                          <th className="pb-3 px-4">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {prestacoes.length === 0 && (
+                          <tr><td colSpan={5} className="text-center py-4 text-gray-400">Nenhum lançamento cadastrado</td></tr>
+                        )}
+                        {prestacoes.map((p) => (
+                          <tr key={p.id} className="group hover:bg-slate-50 transition-colors">
+                            <td className="py-4 px-4 text-sm text-slate-600">{new Date(p.data).toLocaleDateString('pt-BR')}</td>
+                            <td className="py-4 px-4 font-semibold text-slate-800">{p.titulo}</td>
+                            <td className="py-4 px-4">
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${p.tipo === 'entrada' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                {p.tipo}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 text-sm text-slate-600">
+                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(p.valor)}
+                            </td>
+                            <td className="py-4 px-4 w-32">
+                              <div className="flex gap-2">
+                                <button onClick={() => handleEditPrestacao(p)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
+                                <button onClick={() => handleDeletePrestacao(p.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'inscricoes' && (
+              <div className="space-y-4">
+                {loading ? <p>Carregando...</p> : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-50">
+                          <th className="pb-3 px-4">Evento</th>
+                          <th className="pb-3 px-4">Vagas</th>
+                          <th className="pb-3 px-4">Status</th>
+                          <th className="pb-3 px-4">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {inscricoes.length === 0 && (
+                          <tr><td colSpan={4} className="text-center py-4 text-gray-400">Nenhuma inscrição cadastrada</td></tr>
+                        )}
+                        {inscricoes.map((i) => (
+                          <tr key={i.id} className="group hover:bg-slate-50 transition-colors">
+                            <td className="py-4 px-4 font-semibold text-slate-800">{i.evento_nome}</td>
+                            <td className="py-4 px-4 text-sm text-slate-600">{i.vagas} vagas</td>
+                            <td className="py-4 px-4">
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${i.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                                {i.ativo ? 'Ativo' : 'Inativo'}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 w-32">
+                              <div className="flex gap-2">
+                                <button onClick={() => handleEditInscricao(i)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
+                                <button onClick={() => handleDeleteInscricao(i.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'redes' && (
+              <div className="space-y-4">
+                {loading ? <p>Carregando...</p> : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-50">
+                          <th className="pb-3 px-4">Nome</th>
+                          <th className="pb-3 px-4">URL</th>
+                          <th className="pb-3 px-4">Status</th>
+                          <th className="pb-3 px-4">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {redes.length === 0 && (
+                          <tr><td colSpan={4} className="text-center py-4 text-gray-400">Nenhuma rede social cadastrada</td></tr>
+                        )}
+                        {redes.map((r) => (
+                          <tr key={r.id} className="group hover:bg-slate-50 transition-colors">
+                            <td className="py-4 px-4 font-semibold text-slate-800">{r.nome}</td>
+                            <td className="py-4 px-4 text-sm text-blue-600 truncate max-w-xs">{r.url}</td>
+                            <td className="py-4 px-4">
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${r.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                                {r.ativo ? 'Ativo' : 'Inativo'}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 w-32">
+                              <div className="flex gap-2">
+                                <button onClick={() => handleEditRede(r)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
+                                <button onClick={() => handleDeleteRede(r.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </div>
