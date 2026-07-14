@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { SplashScreen } from '@capacitor/splash-screen';
+import Splash from './components/Splash';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Oracoes from './pages/Oracoes';
@@ -29,7 +30,9 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <Router>
+    <>
+      <Splash />
+      <Router>
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -54,7 +57,8 @@ const App: React.FC = () => {
           <Route path="/admin/login" element={<AdminLogin />} />
         </Routes>
       </Layout>
-    </Router>
+      </Router>
+    </>
   );
 };
 
