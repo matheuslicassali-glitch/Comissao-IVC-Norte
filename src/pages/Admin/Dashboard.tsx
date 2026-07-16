@@ -554,7 +554,7 @@ const AdminDashboard: React.FC = () => {
 
     try {
       // @ts-ignore
-      const tempSupabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY, {
+      const tempSupabase = createClient(import.meta.env.VITE_SUPABASE_URL || 'https://scgrkzixbdotxtnszemf.supabase.co', import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_ahzPMnGiQmVAQs13fz3E1Q_kLFvsTks', {
         auth: {
           persistSession: false,
           autoRefreshToken: false,
